@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const Media = require('../models/Media');
+const { uploadToCloudinary, deleteFromCloudinary } = require('../config/cloudinary');
 
 // @desc    Upload image
 // @route   POST /api/media/upload
@@ -11,13 +12,14 @@ const uploadImage = async (req, res) => {
   }
 
   try {
-    // Construct the path url relative to server root
-    const fileUrl = `/uploads/${req.file.filename}`;
+    // Upload image to Cloudinary using file buffer
+    const result = await uploadToCloudinary(req.file.buffer);
 
     const media = await Media.create({
-      filename: req.file.filename,
+      filename: result.public_id,
       originalname: req.file.originalname,
-      url: fileUrl,
+      url: result.secure_url,
+      publicId: result.public_id,
       size: req.file.size,
       mimetype: req.file.mimetype
     });
@@ -59,10 +61,19 @@ const deleteImage = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Media file not found in database' });
     }
 
-    // Delete the file from physical disk
-    const filePath = path.join(__dirname, '../uploads', media.filename);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+    // Delete image from Cloudinary (if publicId is stored) or from physical disk (if legacy local file)
+    if (media.publicId) {
+      try {
+        await deleteFromCloudinary(media.publicId);
+      } catch (cloudinaryError) {
+        console.error('Error deleting file from Cloudinary:', cloudinaryError);
+      }
+    } else {
+      // Legacy support: Delete local file
+      const filePath = path.join(__dirname, '../uploads', media.filename);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
     }
 
     await media.deleteOne();

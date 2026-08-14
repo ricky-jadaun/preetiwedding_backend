@@ -17,6 +17,9 @@ const MediaSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  publicId: {
+    type: String
+  },
   size: {
     type: Number
   },
