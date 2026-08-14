@@ -7,6 +7,7 @@ const submitRsvp = async (req, res) => {
   const {
     firstName,
     lastName,
+    childrenCount,
     email,
     whatsapp,
     attending,
@@ -26,6 +27,7 @@ const submitRsvp = async (req, res) => {
     const rsvp = await Rsvp.create({
       firstName,
       lastName,
+      childrenCount,
       email,
       whatsapp,
       attending,

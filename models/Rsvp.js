@@ -11,6 +11,10 @@ const RsvpSchema = new mongoose.Schema({
     required: [true, 'Last name is required'],
     trim: true
   },
+  childrenCount: {
+    type: Number,
+    default: 0
+  },
   email: {
     type: String,
     required: [true, 'Email is required'],
