@@ -23,7 +23,7 @@ const sendEmail = async (options) => {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
-    family: 4, // Use IPv4
+    family: 4, // Force IPv4 to avoid IPv6 ENETUNREACH error
     // Connection timeout
     connectionTimeout: 10000, // 10 seconds
   });
